@@ -112,13 +112,13 @@ fun VoiceMsg(vm: VoiceViewModel) {
     ) {
         Box {
             if (isPlaying) {
-                CircularWavyProgressIndicator()
+                CircularWavyProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 IconButton(onClick = { vm.toggleplay() }) {
                     Icon(
                         imageVector = Icons.Default.Pause,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.secondary
                     )
                 }
 
@@ -147,13 +147,16 @@ fun VoiceMsg(vm: VoiceViewModel) {
                     modifier = Modifier
                         .align(Alignment.Center)
                         .fillMaxWidth(),
-                    amplitude = { 0.7f })
+                    amplitude = { 0.7f },
+                    color = MaterialTheme.colorScheme.primary
+                )
             } else {
                 LinearProgressIndicator(
                     progress = { 0.6f },
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
 
@@ -161,7 +164,7 @@ fun VoiceMsg(vm: VoiceViewModel) {
                 "9:10 am",
                 modifier = Modifier.align(Alignment.BottomEnd),
                 fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.secondary
             )
         }
         Spacer(modifier = Modifier.width(5.dp))
@@ -169,7 +172,7 @@ fun VoiceMsg(vm: VoiceViewModel) {
             imageVector = Icons.Default.AccountCircle,
             contentDescription = null,
             modifier = Modifier.size(50.dp),
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.secondary
         )
 
     }
