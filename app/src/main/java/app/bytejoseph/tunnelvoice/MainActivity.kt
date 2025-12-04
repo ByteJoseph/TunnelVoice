@@ -48,9 +48,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.bytejoseph.tunnelvoice.ui.theme.TunnelVoiceTheme
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.lifecycle.ViewModel
+import androidx.activity.viewModels
 
+class VoiceViewModel : ViewModel() {
+    var isPlaying by mutableStateOf(false)
+        private set
+
+    fun toggleplay() {
+        isPlaying = !isPlaying
+    }
+}
 
 class MainActivity : ComponentActivity() {
+    private val voiceViewModel: VoiceViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -67,7 +78,7 @@ class MainActivity : ComponentActivity() {
                             name = "Android"
                         )
                         DateLabel("Yesterday")
-                        VoiceMsg()
+                        VoiceMsg(voiceViewModel)
 
                     }
 
@@ -86,24 +97,23 @@ fun Greeting(name: String) {
 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Preview
 @Composable
-fun VoiceMsg() {
-    var isPlaying by rememberSaveable { mutableStateOf(false) }
+fun VoiceMsg(vm: VoiceViewModel) {
+    var isPlaying = vm.isPlaying
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .padding(horizontal = 8.dp)
             .clip(RoundedCornerShape(15.dp))
             .background(MaterialTheme.colorScheme.onPrimary)
-            .clickable(onClick = { isPlaying = !isPlaying })
+            .clickable(onClick = { vm.toggleplay() })
             .height(60.dp)
             .fillMaxWidth()
     ) {
         Box {
             if (isPlaying) {
                 CircularWavyProgressIndicator()
-                IconButton(onClick = { isPlaying = !isPlaying }) {
+                IconButton(onClick = { vm.toggleplay() }) {
                     Icon(
                         imageVector = Icons.Default.Pause,
                         contentDescription = null,
@@ -113,7 +123,7 @@ fun VoiceMsg() {
                 }
 
             } else {
-                IconButton(onClick = { isPlaying = !isPlaying }) {
+                IconButton(onClick = { vm.toggleplay() }) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = null,
