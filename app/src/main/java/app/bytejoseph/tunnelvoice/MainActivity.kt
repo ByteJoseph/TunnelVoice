@@ -60,6 +60,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.mutableStateListOf
 import app.bytejoseph.tunnelvoice.askFullFilePermission
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import android.content.Context
+import android.media.MediaPlayer
+import java.util.Timer
+import java.util.TimerTask
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 fun getLastModifiedName(path: String): String? {
     val dir = File(path)
@@ -70,38 +80,120 @@ fun getLastModifiedName(path: String): String? {
 
     return lastModified.name
 }
+
 data class VoiceNotes(
     val name: String
 )
+
 class VoiceViewModel : ViewModel() {
+    // Audio list
+    var audioList = mutableStateListOf<VoiceNotes>()
+
+    // Playback state
     var isPlaying by mutableStateOf(false)
         private set
-    var AudioList = mutableStateListOf<VoiceNotes>()
+
+    // Compose state for playback progress (0.0f to 1.0f)
+    var progressRatio by mutableStateOf(0f)
+        private set
+
+    private var player: MediaPlayer? = null
+    private var progressTimer: Timer? = null
+
+    val targetPath =
+        "/storage/emulated/0/Android/media/com.whatsapp/whatsapp/Media/WhatsApp Voice Notes"
+    val lastFolder = targetPath + "/" + getLastModifiedName(targetPath)
 
     init {
-        // Automatically load files when ViewModel is created
-        getFiles()
+        loadAudioFiles()
     }
-    fun toggleplay() {
-        isPlaying = !isPlaying
-    }
-    fun getFiles() {
-        val TargetPath = "/storage/emulated/0/Android/media/com.whatsapp/whatsapp/Media/WhatsApp Voice Notes"
-        val lastFolder = TargetPath+"/"+getLastModifiedName(TargetPath)
+
+    /** Load WhatsApp voice notes from storage */
+    private fun loadAudioFiles() {
+
         val dir = File(lastFolder)
         if (!dir.exists() || !dir.isDirectory) return
 
         val files = dir.listFiles()?.filter { it.isFile && it.name != ".nomedia" } ?: return
 
-        AudioList.clear() // clear old list
+        audioList.clear()
         files.forEach { file ->
-            AudioList.add(VoiceNotes(file.name))
+            audioList.add(VoiceNotes(file.name))
         }
+    }
+
+    /** Play an audio file */
+    fun play(filePath: String) {
+        val filePath = "$lastFolder/$filePath"
+        stop() // stop previous playback
+
+        val file = File(filePath)
+        if (!file.exists()) return
+
+        player = MediaPlayer().apply {
+            setDataSource(file.absolutePath)
+            setOnPreparedListener { mp ->
+                mp.start()
+                startProgressUpdates()
+            }
+            setOnCompletionListener {
+                stop()
+            }
+            prepareAsync()
+        }
+        isPlaying = true
+    }
+
+    fun pause() {
+        player?.pause()
+        isPlaying = false
+    }
+
+    fun resume() {
+        player?.start()
+        isPlaying = true
+    }
+
+    fun seekTo(ms: Int) {
+        player?.seekTo(ms)
+    }
+
+    fun stop() {
+        progressTimer?.cancel()
+        progressTimer = null
+        player?.release()
+        player = null
+        isPlaying = false
+        progressRatio = 0f
+    }
+
+    /** Updates progressRatio every 200ms */
+    private fun startProgressUpdates() {
+        viewModelScope.launch {
+            while (player != null && player!!.isPlaying && isActive) {
+                val mp = player!!
+                val pos = mp.currentPosition
+                val dur = mp.duration
+
+                // Safe update on main thread
+                progressRatio = if (dur > 0) pos.toFloat() / dur else 0f
+
+                delay(200) // 200ms update interval
+            }
+        }
+    }
+
+    /** Helper to get last modified folder name */
+    private fun getLastModifiedName(path: String): String {
+        val dir = File(path)
+        val lastModifiedFile = dir.listFiles()?.maxByOrNull { it.lastModified() }
+        return lastModifiedFile?.name ?: ""
     }
 }
 
 class MainActivity : ComponentActivity() {
     private val voiceViewModel: VoiceViewModel by viewModels()
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,7 +204,8 @@ class MainActivity : ComponentActivity() {
                     Column(
                         modifier = Modifier
                             .padding(innerPadding)
-                            .fillMaxWidth().background(MaterialTheme.colorScheme.surface),
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Greeting(
@@ -144,22 +237,31 @@ fun Greeting(name: String) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun VoiceMsg(vm: VoiceViewModel) {
+fun VoiceMsg(vm: VoiceViewModel, fileName: String) {
     var isPlaying by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+    var progressAudio = vm.progressRatio
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 5.dp)
             .clip(RoundedCornerShape(15.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
-            .clickable(onClick = { isPlaying = !isPlaying })
+            .clickable(onClick = {
+                isPlaying = !isPlaying
+                Toast.makeText(context, fileName, Toast.LENGTH_SHORT).show()
+                vm.play(fileName)
+            })
             .height(60.dp)
             .fillMaxWidth()
     ) {
         Box {
             if (isPlaying) {
                 CircularWavyProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                IconButton(onClick = { isPlaying = !isPlaying }) {
+                IconButton(onClick = {
+                    isPlaying = !isPlaying
+                    vm.pause()
+                }) {
                     Icon(
                         imageVector = Icons.Default.Pause,
                         contentDescription = null,
@@ -169,7 +271,8 @@ fun VoiceMsg(vm: VoiceViewModel) {
                 }
 
             } else {
-                IconButton(onClick = { isPlaying = !isPlaying }) {
+                IconButton(onClick = { isPlaying = !isPlaying
+                vm.play(fileName)}) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = null,
@@ -189,7 +292,7 @@ fun VoiceMsg(vm: VoiceViewModel) {
         ) {
             if (isPlaying) {
                 LinearWavyProgressIndicator(
-                    progress = { 0.6f },
+                    progress = { progressAudio },
                     modifier = Modifier
                         .align(Alignment.Center)
                         .fillMaxWidth(),
@@ -252,12 +355,11 @@ fun PreviewDateLabel() {
 }
 
 @Composable
-fun Messages(vm: VoiceViewModel){
-    val voiceNotes = vm.AudioList
+fun Messages(vm: VoiceViewModel) {
+    val voiceNotes = vm.audioList
     LazyColumn {
-        items(voiceNotes){
-            i ->
-            VoiceMsg(vm = vm)
+        items(voiceNotes) { i ->
+            VoiceMsg(vm = vm, i.name)
         }
     }
 }
