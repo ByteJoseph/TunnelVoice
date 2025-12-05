@@ -54,6 +54,7 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import app.bytejoseph.tunnelvoice.askFullFilePermission
 
 
 data class VoiceNotes(
@@ -99,6 +100,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        askFullFilePermission(this)
     }
 }
 
