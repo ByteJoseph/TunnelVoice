@@ -71,13 +71,16 @@ class MainActivity : ComponentActivity() {
                     Column(
                         modifier = Modifier
                             .padding(innerPadding)
-                            .fillMaxWidth(),
+                            .fillMaxWidth().background(MaterialTheme.colorScheme.surface),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Greeting(
                             name = "Android"
                         )
                         DateLabel("Yesterday")
+                        VoiceMsg(voiceViewModel)
+                        VoiceMsg(voiceViewModel)
+                        VoiceMsg(voiceViewModel)
                         VoiceMsg(voiceViewModel)
 
                     }
@@ -99,31 +102,31 @@ fun Greeting(name: String) {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun VoiceMsg(vm: VoiceViewModel) {
-    var isPlaying = vm.isPlaying
+    var isPlaying by rememberSaveable { mutableStateOf(false) }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .padding(horizontal = 8.dp)
+            .padding(horizontal = 8.dp, vertical = 5.dp)
             .clip(RoundedCornerShape(15.dp))
-            .background(MaterialTheme.colorScheme.onPrimary)
-            .clickable(onClick = { vm.toggleplay() })
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .clickable(onClick = { isPlaying = !isPlaying })
             .height(60.dp)
             .fillMaxWidth()
     ) {
         Box {
             if (isPlaying) {
                 CircularWavyProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                IconButton(onClick = { vm.toggleplay() }) {
+                IconButton(onClick = { isPlaying = !isPlaying }) {
                     Icon(
                         imageVector = Icons.Default.Pause,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp),
-                        tint = MaterialTheme.colorScheme.secondary
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
 
             } else {
-                IconButton(onClick = { vm.toggleplay() }) {
+                IconButton(onClick = { isPlaying = !isPlaying }) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = null,
@@ -172,7 +175,7 @@ fun VoiceMsg(vm: VoiceViewModel) {
             imageVector = Icons.Default.AccountCircle,
             contentDescription = null,
             modifier = Modifier.size(50.dp),
-            tint = MaterialTheme.colorScheme.secondary
+            tint = MaterialTheme.colorScheme.tertiary
         )
 
     }
