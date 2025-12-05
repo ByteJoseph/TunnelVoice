@@ -1,5 +1,6 @@
 package app.bytejoseph.tunnelvoice
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -50,7 +51,14 @@ import app.bytejoseph.tunnelvoice.ui.theme.TunnelVoiceTheme
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.ViewModel
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
+
+data class VoiceNotes(
+    val name: String
+)
 class VoiceViewModel : ViewModel() {
     var isPlaying by mutableStateOf(false)
         private set
@@ -62,6 +70,7 @@ class VoiceViewModel : ViewModel() {
 
 class MainActivity : ComponentActivity() {
     private val voiceViewModel: VoiceViewModel by viewModels()
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -77,7 +86,9 @@ class MainActivity : ComponentActivity() {
                         Greeting(
                             name = "Android"
                         )
-                        DateLabel("Yesterday")
+                        val today = LocalDate.now()
+                        val formatted = today.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        DateLabel(formatted)
                         VoiceMsg(voiceViewModel)
                         VoiceMsg(voiceViewModel)
                         VoiceMsg(voiceViewModel)
