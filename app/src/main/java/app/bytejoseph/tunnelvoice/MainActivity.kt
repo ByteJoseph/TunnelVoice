@@ -54,18 +54,49 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.io.File
+import android.util.Log
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.mutableStateListOf
 import app.bytejoseph.tunnelvoice.askFullFilePermission
 
+fun getLastModifiedName(path: String): String? {
+    val dir = File(path)
+    if (!dir.exists() || !dir.isDirectory) return null
 
+    val children = dir.listFiles() ?: return null
+    val lastModified = children.maxByOrNull { it.lastModified() } ?: return null
+
+    return lastModified.name
+}
 data class VoiceNotes(
     val name: String
 )
 class VoiceViewModel : ViewModel() {
     var isPlaying by mutableStateOf(false)
         private set
+    var AudioList = mutableStateListOf<VoiceNotes>()
 
+    init {
+        // Automatically load files when ViewModel is created
+        getFiles()
+    }
     fun toggleplay() {
         isPlaying = !isPlaying
+    }
+    fun getFiles() {
+        val TargetPath = "/storage/emulated/0/Android/media/com.whatsapp/whatsapp/Media/WhatsApp Voice Notes"
+        val lastFolder = TargetPath+"/"+getLastModifiedName(TargetPath)
+        val dir = File(lastFolder)
+        if (!dir.exists() || !dir.isDirectory) return
+
+        val files = dir.listFiles()?.filter { it.isFile && it.name != ".nomedia" } ?: return
+
+        AudioList.clear() // clear old list
+        files.forEach { file ->
+            AudioList.add(VoiceNotes(file.name))
+        }
     }
 }
 
@@ -90,10 +121,8 @@ class MainActivity : ComponentActivity() {
                         val today = LocalDate.now()
                         val formatted = today.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                         DateLabel(formatted)
-                        VoiceMsg(voiceViewModel)
-                        VoiceMsg(voiceViewModel)
-                        VoiceMsg(voiceViewModel)
-                        VoiceMsg(voiceViewModel)
+                        Messages(vm = voiceViewModel)
+
 
                     }
 
@@ -101,6 +130,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         askFullFilePermission(this)
+
     }
 }
 
@@ -219,4 +249,15 @@ fun DateLabel(name: String) {
 @Composable
 fun PreviewDateLabel() {
     DateLabel(name = "Today")
+}
+
+@Composable
+fun Messages(vm: VoiceViewModel){
+    val voiceNotes = vm.AudioList
+    LazyColumn {
+        items(voiceNotes){
+            i ->
+            VoiceMsg(vm = vm)
+        }
+    }
 }
