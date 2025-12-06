@@ -91,6 +91,13 @@ data class VoiceNotes(
 )
 
 class VoiceViewModel : ViewModel() {
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+    val today = LocalDate.now()
+    val yesterday = today.minusDays(1)
+
+    val todayStr = today.format(formatter)
+    val yesterdayStr = yesterday.format(formatter)
     // Audio list
     var audioList = mutableStateListOf<VoiceNotes>()
 
@@ -126,12 +133,11 @@ class VoiceViewModel : ViewModel() {
 
         audioList.clear()
 
-        val formatterDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val formatterDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val formatterTime = SimpleDateFormat("hh:mm a", Locale.getDefault())
 
         files.forEach { file ->
             val lastMod = Date(file.lastModified())
-
             audioList.add(
                 VoiceNotes(
                     name = file.name,
@@ -234,9 +240,6 @@ class MainActivity : ComponentActivity() {
                         Greeting(
                             name = "Android"
                         )
-                        val today = LocalDate.now()
-                        val formatted = today.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-                        DateLabel(formatted)
                         Messages(vm = voiceViewModel)
 
 
@@ -381,10 +384,31 @@ fun PreviewDateLabel() {
 
 @Composable
 fun Messages(vm: VoiceViewModel) {
-    val voiceNotes = vm.audioList
-    LazyColumn {
-        items(voiceNotes) { i ->
-            VoiceMsg(vm = vm, i.name,i.time12)
+    val voices = vm.audioList
+
+    // Group messages by date
+    val grouped = voices.groupBy { it.date }
+
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        grouped.forEach { (date, items) ->
+            item {
+                if (date == vm.todayStr)
+                {
+                    DateLabel("Today")
+                }
+                else if (date == vm.yesterdayStr){
+                    DateLabel("Yesterday")
+                }
+                else{
+                    DateLabel(date)
+                }
+
+            }
+            items(items) { v ->
+                VoiceMsg(vm = vm, v.name, v.time12)
+            }
         }
     }
 }
