@@ -129,6 +129,7 @@ class VoiceViewModel : ViewModel() {
 
         val files = dir.listFiles()
             ?.filter { it.isFile && it.name != ".nomedia" }
+            ?.sortedByDescending { it.lastModified() } // sort by last modified, latest first
             ?: return
 
         audioList.clear()
@@ -146,8 +147,6 @@ class VoiceViewModel : ViewModel() {
                 )
             )
         }
-
-        audioList.reverse()
     }
 
     /** Play an audio file */
