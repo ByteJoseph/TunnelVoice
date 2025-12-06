@@ -70,6 +70,9 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 fun getLastModifiedName(path: String): String? {
     val dir = File(path)
@@ -82,7 +85,9 @@ fun getLastModifiedName(path: String): String? {
 }
 
 data class VoiceNotes(
-    val name: String
+    val name: String,
+    val date: String,
+    val time12: String
 )
 
 class VoiceViewModel : ViewModel() {
@@ -112,16 +117,31 @@ class VoiceViewModel : ViewModel() {
 
     /** Load WhatsApp voice notes from storage */
     private fun loadAudioFiles() {
-
         val dir = File(lastFolder)
         if (!dir.exists() || !dir.isDirectory) return
 
-        val files = dir.listFiles()?.filter { it.isFile && it.name != ".nomedia" } ?: return
+        val files = dir.listFiles()
+            ?.filter { it.isFile && it.name != ".nomedia" }
+            ?: return
 
         audioList.clear()
+
+        val formatterDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val formatterTime = SimpleDateFormat("hh:mm a", Locale.getDefault())
+
         files.forEach { file ->
-            audioList.add(VoiceNotes(file.name))
+            val lastMod = Date(file.lastModified())
+
+            audioList.add(
+                VoiceNotes(
+                    name = file.name,
+                    date = formatterDate.format(lastMod),
+                    time12 = formatterTime.format(lastMod)
+                )
+            )
         }
+
+        audioList.reverse()
     }
 
     /** Play an audio file */
@@ -240,7 +260,7 @@ fun Greeting(name: String) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun VoiceMsg(vm: VoiceViewModel, fileName: String) {
+fun VoiceMsg(vm: VoiceViewModel, fileName: String,time12: String) {
     var isPlaying by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     var progressAudio = vm.progressRatio
@@ -315,7 +335,7 @@ fun VoiceMsg(vm: VoiceViewModel, fileName: String) {
             }
 
             Text(
-                "9:10 am",
+                time12,
                 modifier = Modifier.align(Alignment.BottomEnd),
                 fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.secondary
@@ -364,7 +384,7 @@ fun Messages(vm: VoiceViewModel) {
     val voiceNotes = vm.audioList
     LazyColumn {
         items(voiceNotes) { i ->
-            VoiceMsg(vm = vm, i.name)
+            VoiceMsg(vm = vm, i.name,i.time12)
         }
     }
 }
