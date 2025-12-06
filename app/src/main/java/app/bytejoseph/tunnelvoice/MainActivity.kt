@@ -96,6 +96,8 @@ class VoiceViewModel : ViewModel() {
     // Compose state for playback progress (0.0f to 1.0f)
     var progressRatio by mutableStateOf(0f)
         private set
+    var currentFile by mutableStateOf("empty")
+        private set
 
     private var player: MediaPlayer? = null
     private var progressTimer: Timer? = null
@@ -124,6 +126,7 @@ class VoiceViewModel : ViewModel() {
 
     /** Play an audio file */
     fun play(filePath: String) {
+        currentFile = filePath
         val filePath = "$lastFolder/$filePath"
         stop() // stop previous playback
 
@@ -248,15 +251,15 @@ fun VoiceMsg(vm: VoiceViewModel, fileName: String) {
             .clip(RoundedCornerShape(15.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
             .clickable(onClick = {
-                isPlaying = !isPlaying
-                Toast.makeText(context, fileName, Toast.LENGTH_SHORT).show()
-                vm.play(fileName)
+//                isPlaying = !isPlaying
+//                Toast.makeText(context, fileName, Toast.LENGTH_SHORT).show()
+//                vm.play(fileName)
             })
             .height(60.dp)
             .fillMaxWidth()
     ) {
         Box {
-            if (isPlaying) {
+            if (isPlaying && fileName == vm.currentFile) {
                 CircularWavyProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 IconButton(onClick = {
                     isPlaying = !isPlaying
@@ -271,8 +274,10 @@ fun VoiceMsg(vm: VoiceViewModel, fileName: String) {
                 }
 
             } else {
-                IconButton(onClick = { isPlaying = !isPlaying
-                vm.play(fileName)}) {
+                IconButton(onClick = {
+                    isPlaying = !isPlaying
+                    vm.play(fileName)
+                }) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = null,
@@ -292,16 +297,16 @@ fun VoiceMsg(vm: VoiceViewModel, fileName: String) {
         ) {
             if (isPlaying) {
                 LinearWavyProgressIndicator(
-                    progress = { progressAudio },
+                    progress = { if (fileName == vm.currentFile) progressAudio else 0f },
                     modifier = Modifier
                         .align(Alignment.Center)
                         .fillMaxWidth(),
-                    amplitude = { 0.7f },
+                    amplitude = { 1.0f },
                     color = MaterialTheme.colorScheme.primary
                 )
             } else {
                 LinearProgressIndicator(
-                    progress = { 0.6f },
+                    progress = { if (fileName == vm.currentFile) progressAudio else 0f },
                     modifier = Modifier
                         .align(Alignment.Center)
                         .fillMaxWidth(),
