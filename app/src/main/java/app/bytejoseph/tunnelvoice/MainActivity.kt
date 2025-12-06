@@ -1,10 +1,13 @@
 package app.bytejoseph.tunnelvoice
 
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,59 +23,47 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import app.bytejoseph.tunnelvoice.ui.theme.TunnelVoiceTheme
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.ViewModel
-import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.io.File
-import android.util.Log
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.mutableStateListOf
-import app.bytejoseph.tunnelvoice.askFullFilePermission
-import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
-import android.content.Context
-import android.media.MediaPlayer
-import java.util.Timer
-import java.util.TimerTask
 import androidx.lifecycle.viewModelScope
+import app.bytejoseph.tunnelvoice.ui.theme.TunnelVoiceTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.io.File
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.Timer
 
 fun getLastModifiedName(path: String): String? {
     val dir = File(path)
@@ -85,19 +76,12 @@ fun getLastModifiedName(path: String): String? {
 }
 
 data class VoiceNotes(
-    val name: String,
-    val date: String,
-    val time12: String
+    val name: String, val date: String, val time12: String
 )
 
 class VoiceViewModel : ViewModel() {
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
-    val today = LocalDate.now()
-    val yesterday = today.minusDays(1)
 
-    val todayStr = today.format(formatter)
-    val yesterdayStr = yesterday.format(formatter)
     // Audio list
     var audioList = mutableStateListOf<VoiceNotes>()
 
@@ -121,14 +105,23 @@ class VoiceViewModel : ViewModel() {
     init {
         loadAudioFiles()
     }
+    fun getTodayAndYesterday(): Pair<String, String> {
+        val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
+        val calendar = Calendar.getInstance()
+        val todayStr = formatter.format(calendar.time)
+
+        calendar.add(Calendar.DAY_OF_YEAR, -1)
+        val yesterdayStr = formatter.format(calendar.time)
+
+        return Pair(todayStr, yesterdayStr)
+    }
     /** Load WhatsApp voice notes from storage */
     private fun loadAudioFiles() {
         val dir = File(lastFolder)
         if (!dir.exists() || !dir.isDirectory) return
 
-        val files = dir.listFiles()
-            ?.filter { it.isFile && it.name != ".nomedia" }
+        val files = dir.listFiles()?.filter { it.isFile && it.name != ".nomedia" }
             ?.sortedByDescending { it.lastModified() } // sort by last modified, latest first
             ?: return
 
@@ -136,16 +129,32 @@ class VoiceViewModel : ViewModel() {
 
         val formatterDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val formatterTime = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val (todayStr, yesterdayStr) = getTodayAndYesterday()
 
         files.forEach { file ->
             val lastMod = Date(file.lastModified())
-            audioList.add(
-                VoiceNotes(
-                    name = file.name,
-                    date = formatterDate.format(lastMod),
-                    time12 = formatterTime.format(lastMod)
+            var date = formatterDate.format(lastMod)
+            if (date == todayStr) {
+                audioList.add(
+                    VoiceNotes(
+                        name = file.name, date = "Today", time12 = formatterTime.format(lastMod)
+                    )
                 )
-            )
+            } else if (date == yesterdayStr) {
+                audioList.add(
+                    VoiceNotes(
+                        name = file.name, date = "Yesterday", time12 = formatterTime.format(lastMod)
+                    )
+                )
+            } else {
+                audioList.add(
+                    VoiceNotes(
+                        name = file.name,
+                        date = date,
+                        time12 = formatterTime.format(lastMod)
+                    )
+                )
+            }
         }
     }
 
@@ -195,7 +204,7 @@ class VoiceViewModel : ViewModel() {
         progressRatio = 0f
     }
 
-    /** Updates progressRatio every 200ms */
+    /** Updates progressRatio every 50ms */
     private fun startProgressUpdates() {
         viewModelScope.launch {
             while (player != null && player!!.isPlaying && isActive) {
@@ -206,7 +215,7 @@ class VoiceViewModel : ViewModel() {
                 // Safe update on main thread
                 progressRatio = if (dur > 0) pos.toFloat() / dur else 0f
 
-                delay(200) // 200ms update interval
+                delay(50) // 50ms update interval
             }
         }
     }
@@ -262,7 +271,7 @@ fun Greeting(name: String) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun VoiceMsg(vm: VoiceViewModel, fileName: String,time12: String) {
+fun VoiceMsg(vm: VoiceViewModel, fileName: String, time12: String) {
     var isPlaying by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     var progressAudio = vm.progressRatio
@@ -393,16 +402,9 @@ fun Messages(vm: VoiceViewModel) {
     ) {
         grouped.forEach { (date, items) ->
             item {
-                if (date == vm.todayStr)
-                {
-                    DateLabel("Today")
-                }
-                else if (date == vm.yesterdayStr){
-                    DateLabel("Yesterday")
-                }
-                else{
-                    DateLabel(date)
-                }
+
+                DateLabel(date)
+
 
             }
             items(items) { v ->
