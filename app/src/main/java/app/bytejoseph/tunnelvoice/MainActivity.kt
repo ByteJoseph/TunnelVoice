@@ -59,10 +59,10 @@ data class VoiceNotes(
 )
 
 
-
 class MainActivity : ComponentActivity() {
     private val voiceViewModel: VoiceViewModel by viewModels()
     private lateinit var auth: FirebaseAuth
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,8 +70,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             TunnelVoiceTheme {
                 Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
+                    modifier = Modifier.fillMaxSize()
                 ) { innerPadding ->
                     Column(
                         modifier = Modifier
@@ -96,8 +95,7 @@ class MainActivity : ComponentActivity() {
 
         askFullFilePermission(this)
         fun signInAnonymously() {
-            auth.signInAnonymously()
-                .addOnCompleteListener(this) { task ->
+            auth.signInAnonymously().addOnCompleteListener(this) { task ->
                     if (task.isSuccessful) {
                         val user = auth.currentUser
                         Log.d("AUTH", "Signed in: ${user?.uid}")
@@ -139,6 +137,13 @@ fun VoiceMsg(vm: VoiceViewModel, fileName: String, time12: String) {
             .height(60.dp)
             .fillMaxWidth()
     ) {
+        Spacer(
+            modifier = Modifier
+                .width(5.dp)
+                .fillMaxHeight()
+                .background(MaterialTheme.colorScheme.primary)
+                .width(10.dp)
+        )
         Box {
             if (isPlaying && fileName == vm.currentFile) {
                 CircularWavyProgressIndicator(color = MaterialTheme.colorScheme.primary)
