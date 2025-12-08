@@ -1,66 +1,6 @@
-//package app.bytejoseph.tunnelvoice.ui.theme
-//
-//import android.app.Activity
-//import android.os.Build
-//import androidx.compose.foundation.isSystemInDarkTheme
-//import androidx.compose.material3.MaterialTheme
-//import androidx.compose.material3.darkColorScheme
-//import androidx.compose.material3.dynamicDarkColorScheme
-//import androidx.compose.material3.dynamicLightColorScheme
-//import androidx.compose.material3.lightColorScheme
-//import androidx.compose.runtime.Composable
-//import androidx.compose.ui.platform.LocalContext
-////expressive
-//
-//
-//private val DarkColorScheme = darkColorScheme(
-//    primary = Purple80,
-//    secondary = PurpleGrey80,
-//    tertiary = Pink80
-//)
-//
-//private val LightColorScheme = lightColorScheme(
-//    primary = Green,
-//    secondary = Purple40,
-//    tertiary = Pink40
-//
-//    /* Other default colors to override
-//    background = Color(0xFFFFFBFE),
-//    surface = Color(0xFFFFFBFE),
-//    onPrimary = Color.White,
-//    onSecondary = Color.White,
-//    onTertiary = Color.White,
-//    onBackground = Color(0xFF1C1B1F),
-//    onSurface = Color(0xFF1C1B1F),
-//    */
-//)
-//
-//@Composable
-//fun TunnelVoiceTheme(
-//    darkTheme: Boolean = isSystemInDarkTheme(),
-//    // Dynamic color is available on Android 12+
-//    dynamicColor: Boolean = false,
-//    content: @Composable () -> Unit
-//) {
-//    val colorScheme = when {
-//        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-//            val context = LocalContext.current
-//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-//        }
-//
-//        darkTheme -> DarkColorScheme
-//        else -> LightColorScheme
-//    }
-//
-//    MaterialTheme(
-//        colorScheme = colorScheme,
-//        typography = Typography,
-//        content = content
-//    )
-//}
-
 package app.bytejoseph.tunnelvoice.ui.theme
 
+import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -70,51 +10,30 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+//expressive
 
-// --- Dark Color Scheme (Using Sunset Contrast Palette) ---
+
 private val DarkColorScheme = darkColorScheme(
-    primary = md_theme_dark_primary,
-    onPrimary = md_theme_dark_onPrimary,
-    primaryContainer = md_theme_dark_primaryContainer,
-    onPrimaryContainer = md_theme_dark_onPrimaryContainer,
-    secondary = md_theme_dark_secondary,
-    onSecondary = md_theme_dark_onSecondary,
-    secondaryContainer = md_theme_dark_secondaryContainer,
-    onSecondaryContainer = md_theme_dark_onSecondaryContainer,
-    tertiary = md_theme_dark_tertiary,
-    onTertiary = md_theme_dark_onTertiary,
-    tertiaryContainer = md_theme_dark_tertiaryContainer,
-    onTertiaryContainer = md_theme_dark_onTertiaryContainer,
-    error = md_theme_dark_error,
-    onError = md_theme_dark_onError,
-    background = md_theme_dark_background,
-    onBackground = md_theme_dark_onBackground,
-    surface = md_theme_dark_surface,
-    onSurface = md_theme_dark_onSurface,
-    outline = md_theme_dark_outline
+    primary = Purple80,
+    secondary = PurpleGrey80,
+    tertiary = Pink80
 )
 
-// --- Light Color Scheme (Using Sunset Contrast Palette) ---
 private val LightColorScheme = lightColorScheme(
-    primary = md_theme_light_primary,
-    onPrimary = md_theme_light_onPrimary,
-    primaryContainer = md_theme_light_primaryContainer,
-    onPrimaryContainer = md_theme_light_onPrimaryContainer,
-    secondary = md_theme_light_secondary,
-    onSecondary = md_theme_light_onSecondary,
-    secondaryContainer = md_theme_light_secondaryContainer,
-    onSecondaryContainer = md_theme_light_onSecondaryContainer,
-    tertiary = md_theme_light_tertiary,
-    onTertiary = md_theme_light_onTertiary,
-    tertiaryContainer = md_theme_light_tertiaryContainer,
-    onTertiaryContainer = md_theme_light_onTertiaryContainer,
-    error = md_theme_light_error,
-    onError = md_theme_light_onError,
-    background = md_theme_light_background,
-    onBackground = md_theme_light_onBackground,
-    surface = md_theme_light_surface,
-    onSurface = md_theme_light_onSurface,
-    outline = md_theme_light_outline
+    primary = Orange,
+    secondary = PurpleGrey40,
+    tertiary = Pink40,
+    background = Lime
+
+    /* Other default colors to override
+    background = Color(0xFFFFFBFE),
+    surface = Color(0xFFFFFBFE),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color(0xFF1C1B1F),
+    onSurface = Color(0xFF1C1B1F),
+    */
 )
 
 @Composable
@@ -129,24 +48,14 @@ fun TunnelVoiceTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
 
-//    // Optional: Update system bars (Status Bar & Navigation Bar) colors to match the theme.
-//    val view = LocalView.current
-//    if (!view.isInEditMode) {
-//        SideEffect {
-//            val window = (view.context as Activity).window
-//            window.statusBarColor = colorScheme.primary.toArgb()
-//            // Set the appearance of the system bars to match the theme
-//            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
-//        }
-//    }
-
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography, // Assume Typography is correctly defined elsewhere
+        typography = Typography,
         content = content
     )
 }

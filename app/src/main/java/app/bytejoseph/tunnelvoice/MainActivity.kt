@@ -105,6 +105,7 @@ class VoiceViewModel : ViewModel() {
     init {
         loadAudioFiles()
     }
+
     fun getTodayAndYesterday(): Pair<String, String> {
         val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -116,6 +117,7 @@ class VoiceViewModel : ViewModel() {
 
         return Pair(todayStr, yesterdayStr)
     }
+
     /** Load WhatsApp voice notes from storage */
     private fun loadAudioFiles() {
         val dir = File(lastFolder)
@@ -237,12 +239,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TunnelVoiceTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) { innerPadding ->
                     Column(
                         modifier = Modifier
                             .padding(innerPadding)
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.surface),
+                            .background(MaterialTheme.colorScheme.background),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Greeting(
