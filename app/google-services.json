@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "710265869300",
+    "project_id": "tunnelvoice-8c783",
+    "storage_bucket": "tunnelvoice-8c783.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:710265869300:android:1e561b936a05c7ac409fa1",
+        "android_client_info": {
+          "package_name": "app.bytejoseph.tunnelvoice"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiy5ruOC73hj-E8R9VIYwFqBOU9Rm9tdE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

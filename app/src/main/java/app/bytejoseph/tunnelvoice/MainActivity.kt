@@ -2,6 +2,7 @@ package app.bytejoseph.tunnelvoice
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -51,7 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.bytejoseph.tunnelvoice.ui.theme.TunnelVoiceTheme
-
+import com.google.firebase.auth.FirebaseAuth
 
 data class VoiceNotes(
     val name: String, val date: String, val time12: String
@@ -61,7 +62,7 @@ data class VoiceNotes(
 
 class MainActivity : ComponentActivity() {
     private val voiceViewModel: VoiceViewModel by viewModels()
-
+    private lateinit var auth: FirebaseAuth
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,7 +91,22 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        auth = FirebaseAuth.getInstance()
+
+
         askFullFilePermission(this)
+        fun signInAnonymously() {
+            auth.signInAnonymously()
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        val user = auth.currentUser
+                        Log.d("AUTH", "Signed in: ${user?.uid}")
+                    } else {
+                        Log.e("AUTH", "Sign-in failed", task.exception)
+                    }
+                }
+        }
+        signInAnonymously()
 
     }
 }
