@@ -19,7 +19,8 @@ import java.util.Timer
 
 class VoiceViewModel : ViewModel() {
 
-
+    var has2Whatsapp by mutableStateOf(false)
+        private set
     // Audio list
     var audioList = mutableStateListOf<VoiceNotes>()
 
@@ -43,7 +44,9 @@ class VoiceViewModel : ViewModel() {
     init {
         loadAudioFiles()
     }
-
+    fun checkWhatsapp(){
+        has2Whatsapp = true
+    }
     fun getTodayAndYesterday(): Pair<String, String> {
         val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
