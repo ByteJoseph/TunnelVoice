@@ -25,11 +25,18 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Shop
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Shop
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -37,16 +44,23 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -58,9 +72,21 @@ data class VoiceNotes(
     val name: String, val date: String, val time12: String
 )
 
+data class TabItem(
+    val title: String, val unselectedIcon: ImageVector, val selectedIcon: ImageVector
+)
 
 class MainActivity : ComponentActivity() {
     private val voiceViewModel: VoiceViewModel by viewModels()
+    val tabItems = listOf(
+        TabItem(
+            title = "Home", unselectedIcon = Icons.Outlined.Home, selectedIcon = Icons.Filled.Home
+        ), TabItem(
+            title = "Browse",
+            unselectedIcon = Icons.Outlined.PlayArrow,
+            selectedIcon = Icons.Filled.Shop
+        )
+    )
     private lateinit var auth: FirebaseAuth
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -82,7 +108,7 @@ class MainActivity : ComponentActivity() {
                         Greeting(
                             name = "Android"
                         )
-                        Messages(vm = voiceViewModel)
+                        MainView(vm = voiceViewModel, tabItems = tabItems)
 
 
                     }
@@ -96,13 +122,13 @@ class MainActivity : ComponentActivity() {
         askFullFilePermission(this)
         fun signInAnonymously() {
             auth.signInAnonymously().addOnCompleteListener(this) { task ->
-                    if (task.isSuccessful) {
-                        val user = auth.currentUser
-                        Log.d("AUTH", "Signed in: ${user?.uid}")
-                    } else {
-                        Log.e("AUTH", "Sign-in failed", task.exception)
-                    }
+                if (task.isSuccessful) {
+                    val user = auth.currentUser
+                    Log.d("AUTH", "Signed in: ${user?.uid}")
+                } else {
+                    Log.e("AUTH", "Sign-in failed", task.exception)
                 }
+            }
         }
         signInAnonymously()
 
@@ -116,6 +142,54 @@ fun Greeting(name: String) {
     )
 }
 
+@Composable
+fun MainView(vm: VoiceViewModel, tabItems: List<TabItem>) {
+    vm.checkWhatsapp()
+    if (!vm.has2Whatsapp) {
+        Messages(vm = vm)
+    } else {
+        var selectedIndex by remember { mutableIntStateOf(0) }
+        val pagerState = rememberPagerState {
+            tabItems.size
+        }
+        LaunchedEffect(selectedIndex) {
+            pagerState.animateScrollToPage(selectedIndex)
+        }
+        LaunchedEffect(pagerState.currentPage) {
+            selectedIndex = pagerState.currentPage
+        }
+        Column(modifier = Modifier.fillMaxSize()) {
+            HorizontalPager(
+                state = pagerState, modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) { index ->
+                Messages(vm = vm)
+            }
+            TabRow(
+                selectedTabIndex = selectedIndex,
+                modifier = Modifier.clip(RoundedCornerShape(10.dp))
+            ) {
+                tabItems.forEachIndexed { index, item ->
+                    Tab(
+                        selected = index == selectedIndex,
+                        onClick = { selectedIndex = index },
+                        text = { Text(item.title) },
+                        icon = {
+                            Icon(
+                                imageVector = if (index == selectedIndex) {
+                                    item.selectedIcon
+                                } else {
+                                    item.unselectedIcon
+                                }, contentDescription = item.title
+                            )
+                        })
+                }
+            }
+
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
