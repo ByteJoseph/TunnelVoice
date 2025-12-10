@@ -1,6 +1,7 @@
 package app.bytejoseph.tunnelvoice
 
 import android.media.MediaPlayer
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,10 +44,27 @@ class VoiceViewModel : ViewModel() {
 
     init {
         loadAudioFiles()
+        checkWhatsapp()
     }
-    fun checkWhatsapp(){
-        has2Whatsapp = true
+    fun checkWhatsapp() {
+        val dir = File("/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/accounts")
+
+        if (!dir.exists() || !dir.isDirectory) {
+            has2Whatsapp = false
+            Log.d("CheckWhatsapp", "accounts folder missing")
+            return
+        }
+
+        val children = dir.listFiles()
+        has2Whatsapp = (children?.size == 2)
+
+        if (has2Whatsapp) {
+            Log.d("CheckWhatsapp", "Exactly 2 WhatsApp accounts detected")
+        } else {
+            Log.d("CheckWhatsapp", "WhatsApp accounts count != 2")
+        }
     }
+
     fun getTodayAndYesterday(): Pair<String, String> {
         val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
