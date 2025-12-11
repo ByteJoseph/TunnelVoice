@@ -37,9 +37,11 @@ class VoiceViewModel : ViewModel() {
 
     private var player: MediaPlayer? = null
     private var progressTimer: Timer? = null
+    private lateinit var accounts:List<String>;
 
     val targetPath =
         "/storage/emulated/0/Android/media/com.whatsapp/whatsapp/Media/WhatsApp Voice Notes"
+    var accountPath = "/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/accounts"
     val lastFolder = targetPath + "/" + getLastModifiedName(targetPath)
 
     init {
@@ -47,7 +49,7 @@ class VoiceViewModel : ViewModel() {
         checkWhatsapp()
     }
     fun checkWhatsapp() {
-        val dir = File("/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/accounts")
+        val dir = File(accountPath)
 
         if (!dir.exists() || !dir.isDirectory) {
             has2Whatsapp = false
@@ -59,11 +61,13 @@ class VoiceViewModel : ViewModel() {
         has2Whatsapp = (children?.size == 2)
 
         if (has2Whatsapp) {
+            accounts = children!!.map { it.name }
             Log.d("CheckWhatsapp", "Exactly 2 WhatsApp accounts detected")
         } else {
             Log.d("CheckWhatsapp", "WhatsApp accounts count != 2")
         }
     }
+
 
     fun getTodayAndYesterday(): Pair<String, String> {
         val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())

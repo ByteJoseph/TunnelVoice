@@ -34,6 +34,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shop
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.CircleNotifications
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Shop
@@ -50,6 +52,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -68,10 +71,12 @@ import androidx.compose.ui.unit.sp
 import app.bytejoseph.tunnelvoice.ui.theme.TunnelVoiceTheme
 import com.google.firebase.auth.FirebaseAuth
 
+@Immutable
 data class VoiceNotes(
     val name: String, val date: String, val time12: String
 )
 
+@Immutable
 data class TabItem(
     val title: String, val unselectedIcon: ImageVector, val selectedIcon: ImageVector
 )
@@ -144,7 +149,7 @@ fun Greeting(name: String) {
 
 @Composable
 fun MainView(vm: VoiceViewModel, tabItems: List<TabItem>) {
-    vm.checkWhatsapp()
+//    vm.checkWhatsapp()
     if (!vm.has2Whatsapp) {
         Messages(vm = vm)
     } else {
@@ -193,7 +198,7 @@ fun MainView(vm: VoiceViewModel, tabItems: List<TabItem>) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun VoiceMsg(vm: VoiceViewModel, fileName: String, time12: String) {
+fun VoiceMsg(vm: VoiceViewModel,v: VoiceNotes) {
     var isPlaying by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     var progressAudio = vm.progressRatio
@@ -219,7 +224,7 @@ fun VoiceMsg(vm: VoiceViewModel, fileName: String, time12: String) {
                 .width(10.dp)
         )
         Box {
-            if (isPlaying && fileName == vm.currentFile) {
+            if (isPlaying && v.name == vm.currentFile) {
                 CircularWavyProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 IconButton(onClick = {
                     isPlaying = !isPlaying
@@ -236,7 +241,7 @@ fun VoiceMsg(vm: VoiceViewModel, fileName: String, time12: String) {
             } else {
                 IconButton(onClick = {
                     isPlaying = !isPlaying
-                    vm.play(fileName)
+                    vm.play(v.name)
                 }) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
@@ -257,7 +262,7 @@ fun VoiceMsg(vm: VoiceViewModel, fileName: String, time12: String) {
         ) {
             if (isPlaying) {
                 LinearWavyProgressIndicator(
-                    progress = { if (fileName == vm.currentFile) progressAudio else 0f },
+                    progress = { if (v.name == vm.currentFile) progressAudio else 0f },
                     modifier = Modifier
                         .align(Alignment.Center)
                         .fillMaxWidth(),
@@ -266,24 +271,33 @@ fun VoiceMsg(vm: VoiceViewModel, fileName: String, time12: String) {
                 )
             } else {
                 LinearProgressIndicator(
-                    progress = { if (fileName == vm.currentFile) progressAudio else 0f },
+                    progress = { if (v.name == vm.currentFile) progressAudio else 0f },
                     modifier = Modifier
                         .align(Alignment.Center)
                         .fillMaxWidth(),
                     color = MaterialTheme.colorScheme.secondary
                 )
             }
-
-            Text(
-                time12,
+            Row(
                 modifier = Modifier.align(Alignment.BottomEnd),
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.secondary
-            )
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.CircleNotifications,
+                    contentDescription = null,
+                    modifier = Modifier.size(13.dp)
+                )
+                Spacer(modifier = Modifier.width(5.dp))
+                Text(
+                    v.time12,
+                    fontSize = 13.sp
+                )
+            }
+
         }
         Spacer(modifier = Modifier.width(5.dp))
         Icon(
-            imageVector = Icons.Default.AccountCircle,
+            imageVector = Icons.Filled.AccountCircle,
             contentDescription = null,
             modifier = Modifier.size(50.dp),
             tint = MaterialTheme.colorScheme.tertiary
@@ -321,23 +335,28 @@ fun PreviewDateLabel() {
 
 @Composable
 fun Messages(vm: VoiceViewModel) {
-    val voices = vm.audioList
 
-    // Group messages by date
-    val grouped = voices.groupBy { it.date }
+    // Group only when audioList changes
+    val grouped = remember(vm.audioList) {
+        vm.audioList.groupBy { it.date }
+    }
 
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        grouped.forEach { (date, items) ->
-            item {
+        grouped.forEach { (date, itemsForDate) ->
 
+            // Date Header
+            item(key = "date-$date") {
                 DateLabel(date)
-
-
             }
-            items(items) { v ->
-                VoiceMsg(vm = vm, v.name, v.time12)
+
+            // Messages for that date
+            items(
+                items = itemsForDate,
+                key = { it.name }   // only if "name" is unique
+            ) { v ->
+                VoiceMsg(vm = vm, v)
             }
         }
     }
