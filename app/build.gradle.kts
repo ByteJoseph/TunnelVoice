@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 //    id("com.android.application")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
+    // Add the Performance Monitoring Gradle plugin
+    id("com.google.firebase.firebase-perf")
 }
 
 android {
@@ -67,6 +70,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth:23.0.0")
-
+    implementation("com.google.firebase:firebase-crashlytics")
+    implementation("com.google.firebase:firebase-perf")
 
 }
