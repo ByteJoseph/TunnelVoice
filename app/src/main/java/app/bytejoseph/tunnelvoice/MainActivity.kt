@@ -30,14 +30,19 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.ExposurePlus1
+import androidx.compose.material.icons.filled.ExposurePlus2
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Shop
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.CircleNotifications
+import androidx.compose.material.icons.outlined.ExposurePlus1
+import androidx.compose.material.icons.outlined.ExposurePlus2
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.PlusOne
 import androidx.compose.material.icons.outlined.Shop
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -85,11 +90,13 @@ class MainActivity : ComponentActivity() {
     private val voiceViewModel: VoiceViewModel by viewModels()
     val tabItems = listOf(
         TabItem(
-            title = "Home", unselectedIcon = Icons.Outlined.Home, selectedIcon = Icons.Filled.Home
+            title = "Account",
+            unselectedIcon = Icons.Outlined.ExposurePlus1,
+            selectedIcon = Icons.Filled.ExposurePlus1
         ), TabItem(
-            title = "Browse",
-            unselectedIcon = Icons.Outlined.PlayArrow,
-            selectedIcon = Icons.Filled.Shop
+            title = "Account",
+            unselectedIcon = Icons.Outlined.ExposurePlus2,
+            selectedIcon = Icons.Filled.ExposurePlus2
         )
     )
     private lateinit var auth: FirebaseAuth
