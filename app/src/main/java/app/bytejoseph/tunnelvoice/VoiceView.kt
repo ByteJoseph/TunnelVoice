@@ -50,8 +50,9 @@ class VoiceViewModel : ViewModel() {
     var acc2path = ""
 
     init {
-        loadAudioFiles()
         checkWhatsapp()
+        loadAudioFiles()
+
     }
 
     fun checkWhatsapp() {

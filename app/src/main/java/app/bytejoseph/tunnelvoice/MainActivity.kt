@@ -150,8 +150,10 @@ fun Greeting(name: String) {
 @Composable
 fun MainView(vm: VoiceViewModel, tabItems: List<TabItem>) {
 //    vm.checkWhatsapp()
+    var lisKey = 0
     if (!vm.has2Whatsapp) {
         Messages(vm = vm)
+        lisKey = 1
     } else {
         var selectedIndex by remember { mutableIntStateOf(0) }
         val pagerState = rememberPagerState {
@@ -171,7 +173,7 @@ fun MainView(vm: VoiceViewModel, tabItems: List<TabItem>) {
                     .weight(1f),
                 verticalAlignment = Alignment.Top
             ) { index ->
-                Messages(vm = vm)
+                Messages4Pager(vm = vm, key = index)
             }
             TabRow(
                 selectedTabIndex = selectedIndex,
@@ -342,6 +344,36 @@ fun Messages(vm: VoiceViewModel) {
         vm.audioList.groupBy { it.date }
     }
 
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        grouped.forEach { (date, itemsForDate) ->
+
+            // Date Header
+            item(key = "date-$date") {
+                DateLabel(date)
+            }
+
+            // Messages for that date
+            items(items = itemsForDate, key = { it.name }   // only if "name" is unique
+            ) { v ->
+                VoiceMsg(vm = vm, v)
+            }
+        }
+    }
+}
+
+@Composable
+fun Messages4Pager(vm: VoiceViewModel, key: Int) {
+
+    var grouped = remember(vm.audioList) {
+        vm.account1List.groupBy { it.date }
+    }
+    if (key == 1) {
+        grouped = remember(vm.audioList) {
+            vm.account2List.groupBy { it.date }
+        }
+    }
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
