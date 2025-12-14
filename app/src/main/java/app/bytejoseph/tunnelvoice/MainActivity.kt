@@ -165,9 +165,11 @@ fun MainView(vm: VoiceViewModel, tabItems: List<TabItem>) {
         }
         Column(modifier = Modifier.fillMaxSize()) {
             HorizontalPager(
-                state = pagerState, modifier = Modifier
+                state = pagerState,
+                modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .weight(1f),
+                verticalAlignment = Alignment.Top
             ) { index ->
                 Messages(vm = vm)
             }
@@ -198,7 +200,7 @@ fun MainView(vm: VoiceViewModel, tabItems: List<TabItem>) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun VoiceMsg(vm: VoiceViewModel,v: VoiceNotes) {
+fun VoiceMsg(vm: VoiceViewModel, v: VoiceNotes) {
     var isPlaying by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     var progressAudio = vm.progressRatio
@@ -289,8 +291,7 @@ fun VoiceMsg(vm: VoiceViewModel,v: VoiceNotes) {
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 Text(
-                    v.time12,
-                    fontSize = 13.sp
+                    v.time12, fontSize = 13.sp
                 )
             }
 
@@ -352,9 +353,7 @@ fun Messages(vm: VoiceViewModel) {
             }
 
             // Messages for that date
-            items(
-                items = itemsForDate,
-                key = { it.name }   // only if "name" is unique
+            items(items = itemsForDate, key = { it.name }   // only if "name" is unique
             ) { v ->
                 VoiceMsg(vm = vm, v)
             }
