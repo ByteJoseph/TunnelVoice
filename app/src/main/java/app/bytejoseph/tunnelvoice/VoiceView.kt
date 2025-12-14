@@ -1,6 +1,7 @@
 package app.bytejoseph.tunnelvoice
 
 import android.media.MediaPlayer
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -21,8 +22,11 @@ class VoiceViewModel : ViewModel() {
 
     var has2Whatsapp by mutableStateOf(false)
         private set
+
     // Audio list
     var audioList = mutableStateListOf<VoiceNotes>()
+    var account1List =  mutableStateListOf<VoiceNotes>()
+    var account2List =  mutableStateListOf<VoiceNotes>()
 
     // Playback state
     var isPlaying by mutableStateOf(false)
@@ -36,17 +40,46 @@ class VoiceViewModel : ViewModel() {
 
     private var player: MediaPlayer? = null
     private var progressTimer: Timer? = null
+    private lateinit var accounts: List<String>;
 
     val targetPath =
         "/storage/emulated/0/Android/media/com.whatsapp/whatsapp/Media/WhatsApp Voice Notes"
+    var accountPath = "/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/accounts"
     val lastFolder = targetPath + "/" + getLastModifiedName(targetPath)
+    var acc1path = ""
+    var acc2path = ""
 
     init {
+        checkWhatsapp()
         loadAudioFiles()
+
     }
-    fun checkWhatsapp(){
-        has2Whatsapp = true
+
+    fun checkWhatsapp() {
+        val dir = File(accountPath)
+
+        if (!dir.exists() || !dir.isDirectory) {
+            has2Whatsapp = false
+            Log.d("CheckWhatsapp", "accounts folder missing")
+            return
+        }
+
+        val children = dir.listFiles()
+        has2Whatsapp = (children?.size == 2)
+
+        if (has2Whatsapp) {
+            accounts = children!!.map { it.name }
+            var base = "$accountPath/${accounts[0]}/Media/WhatsApp Voice Notes"
+            acc1path = "$base/${getLastModifiedName(base)}"
+            base = "$accountPath/${accounts[1]}/Media/WhatsApp Voice Notes"
+            acc2path = "$base/${getLastModifiedName(base)}"
+            Log.d("CheckWhatsapp", "Exactly 2 WhatsApp accounts detected")
+        } else {
+            Log.d("CheckWhatsapp", "WhatsApp accounts count != 2")
+        }
     }
+
+
     fun getTodayAndYesterday(): Pair<String, String> {
         val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -61,42 +94,116 @@ class VoiceViewModel : ViewModel() {
 
     /** Load WhatsApp voice notes from storage */
     private fun loadAudioFiles() {
-        val dir = File(lastFolder)
-        if (!dir.exists() || !dir.isDirectory) return
+        if (!has2Whatsapp) {
+            val dir0 = File(lastFolder)
+            if (!dir0.exists() || !dir0.isDirectory) return
 
-        val files = dir.listFiles()?.filter { it.isFile && it.name != ".nomedia" }
-            ?.sortedByDescending { it.lastModified() } // sort by last modified, latest first
-            ?: return
+            val files = dir0.listFiles()?.filter { it.isFile && it.name != ".nomedia" }
+                ?.sortedByDescending { it.lastModified() } // sort by last modified, latest first
+                ?: return
 
-        audioList.clear()
+            audioList.clear()
 
-        val formatterDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        val formatterTime = SimpleDateFormat("hh:mm a", Locale.getDefault())
-        val (todayStr, yesterdayStr) = getTodayAndYesterday()
+            val formatterDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val formatterTime = SimpleDateFormat("hh:mm a", Locale.getDefault())
+            val (todayStr, yesterdayStr) = getTodayAndYesterday()
 
-        files.forEach { file ->
-            val lastMod = Date(file.lastModified())
-            var date = formatterDate.format(lastMod)
-            if (date == todayStr) {
-                audioList.add(
-                    VoiceNotes(
-                        name = file.name, date = "Today", time12 = formatterTime.format(lastMod)
+            files.forEach { file ->
+                val lastMod = Date(file.lastModified())
+                val date = formatterDate.format(lastMod)
+                if (date == todayStr) {
+                    audioList.add(
+                        VoiceNotes(
+                            name = file.name, date = "Today", time12 = formatterTime.format(lastMod)
+                        )
                     )
-                )
-            } else if (date == yesterdayStr) {
-                audioList.add(
-                    VoiceNotes(
-                        name = file.name, date = "Yesterday", time12 = formatterTime.format(lastMod)
+                } else if (date == yesterdayStr) {
+                    audioList.add(
+                        VoiceNotes(
+                            name = file.name,
+                            date = "Yesterday",
+                            time12 = formatterTime.format(lastMod)
+                        )
                     )
-                )
-            } else {
-                audioList.add(
-                    VoiceNotes(
-                        name = file.name,
-                        date = date,
-                        time12 = formatterTime.format(lastMod)
+                } else {
+                    audioList.add(
+                        VoiceNotes(
+                            name = file.name,
+                            date = date,
+                            time12 = formatterTime.format(lastMod)
+                        )
                     )
-                )
+                }
+            }
+        } else {
+            val dir1 = File(acc1path)
+            if (!dir1.exists() || !dir1.isDirectory) return
+            val dir2 = File(acc2path)
+            if (!dir2.exists() || !dir2.isDirectory) return
+            val files1 = dir1.listFiles()?.filter { it.isFile && it.name != ".nomedia" }
+                ?.sortedByDescending { it.lastModified() } // sort by last modified, latest first
+                ?: return
+            val files2 = dir2.listFiles()?.filter { it.isFile && it.name != ".nomedia" }
+                ?.sortedByDescending { it.lastModified() } // sort by last modified, latest first
+                ?: return
+            account1List.clear()
+            account2List.clear()
+            val formatterDate = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val formatterTime = SimpleDateFormat("hh:mm a", Locale.getDefault())
+            val (todayStr, yesterdayStr) = getTodayAndYesterday()
+            files1.forEach { file ->
+                val lastMod = Date(file.lastModified())
+                val date = formatterDate.format(lastMod)
+                if (date == todayStr) {
+                    account1List.add(
+                        VoiceNotes(
+                            name = file.name, date = "Today", time12 = formatterTime.format(lastMod)
+                        )
+                    )
+                } else if (date == yesterdayStr) {
+                    account1List.add(
+                        VoiceNotes(
+                            name = file.name,
+                            date = "Yesterday",
+                            time12 = formatterTime.format(lastMod)
+                        )
+                    )
+                } else {
+                    account1List.add(
+                        VoiceNotes(
+                            name = file.name,
+                            date = date,
+                            time12 = formatterTime.format(lastMod)
+                        )
+                    )
+                }
+            }
+            files2.forEach { file ->
+                val lastMod = Date(file.lastModified())
+                val date = formatterDate.format(lastMod)
+                if (date == todayStr) {
+                    account2List.add(
+                        VoiceNotes(
+                            name = file.name, date = "Today", time12 = formatterTime.format(lastMod)
+                        )
+                    )
+                } else if (date == yesterdayStr) {
+                    account2List.add(
+                        VoiceNotes(
+                            name = file.name,
+                            date = "Yesterday",
+                            time12 = formatterTime.format(lastMod)
+                        )
+                    )
+                } else {
+                    account2List.add(
+                        VoiceNotes(
+                            name = file.name,
+                            date = date,
+                            time12 = formatterTime.format(lastMod)
+                        )
+                    )
+                }
             }
         }
     }
@@ -109,7 +216,7 @@ class VoiceViewModel : ViewModel() {
 
         val file = File(filePath)
         if (!file.exists()) return
-
+//        throw RuntimeException("Test Crash")
         player = MediaPlayer().apply {
             setDataSource(file.absolutePath)
             setOnPreparedListener { mp ->
