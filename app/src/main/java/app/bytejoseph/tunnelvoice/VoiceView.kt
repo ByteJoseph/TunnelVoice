@@ -231,6 +231,7 @@ class VoiceViewModel : ViewModel() {
                 startProgressUpdates()
             }
             setOnCompletionListener {
+                currentFile = "none"
                 stop()
             }
             prepareAsync()

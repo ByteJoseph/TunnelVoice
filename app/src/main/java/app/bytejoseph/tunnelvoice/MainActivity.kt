@@ -235,6 +235,9 @@ fun VoiceMsg(vm: VoiceViewModel, v: VoiceNotes,select :Int = 0) {
                 .width(10.dp)
         )
         Box {
+            if (vm.currentFile == "none"){
+                isPlaying = !isPlaying
+            }
             if (isPlaying && v.name == vm.currentFile) {
 //                CircularWavyProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 IconButton(onClick = {
@@ -375,15 +378,14 @@ fun Messages(vm: VoiceViewModel) {
 @Composable
 fun Messages4Pager(vm: VoiceViewModel, key: Int) {
 
-    vm.loadAudioFiles()
-    var grouped = remember(vm.audioList) {
-        vm.account1List.groupBy { it.date }
+    LaunchedEffect(key) {
+        vm.loadAudioFiles()
     }
-    if (key == 1) {
-        grouped = remember(vm.audioList) {
-            vm.account2List.groupBy { it.date }
-        }
+    val grouped = remember(key) {
+        if (key == 1) vm.account2List.groupBy { it.date }
+        else vm.account1List.groupBy { it.date }
     }
+
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
