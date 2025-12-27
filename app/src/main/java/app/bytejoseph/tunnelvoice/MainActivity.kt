@@ -236,7 +236,7 @@ fun VoiceMsg(vm: VoiceViewModel, v: VoiceNotes,select :Int = 0) {
         )
         Box {
             if (isPlaying && v.name == vm.currentFile) {
-                CircularWavyProgressIndicator(color = MaterialTheme.colorScheme.primary)
+//                CircularWavyProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 IconButton(onClick = {
                     isPlaying = !isPlaying
                     vm.pause()
@@ -271,16 +271,18 @@ fun VoiceMsg(vm: VoiceViewModel, v: VoiceNotes,select :Int = 0) {
                 .fillMaxHeight()
                 .weight(1.0f)
         ) {
-            if (isPlaying) {
-                LinearWavyProgressIndicator(
-                    progress = { if (v.name == vm.currentFile) progressAudio else 0f },
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .fillMaxWidth(),
-                    amplitude = { 1.0f },
-                    color = MaterialTheme.colorScheme.primary
-                )
-            } else {
+           if (isPlaying)
+            //            {
+//                LinearWavyProgressIndicator(
+//                    progress = { if (v.name == vm.currentFile) progressAudio else 0f },
+//                    modifier = Modifier
+//                        .align(Alignment.Center)
+//                        .fillMaxWidth(),
+//                    amplitude = { 1.0f },
+//                    color = MaterialTheme.colorScheme.primary
+//                )
+//            } else
+                        {
                 LinearProgressIndicator(
                     progress = { if (v.name == vm.currentFile) progressAudio else 0f },
                     modifier = Modifier
@@ -372,6 +374,7 @@ fun Messages(vm: VoiceViewModel) {
 
 @Composable
 fun Messages4Pager(vm: VoiceViewModel, key: Int) {
+
     vm.loadAudioFiles()
     var grouped = remember(vm.audioList) {
         vm.account1List.groupBy { it.date }
