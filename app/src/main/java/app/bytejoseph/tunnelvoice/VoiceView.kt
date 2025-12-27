@@ -45,7 +45,7 @@ class VoiceViewModel : ViewModel() {
     val targetPath =
         "/storage/emulated/0/Android/media/com.whatsapp/whatsapp/Media/WhatsApp Voice Notes"
     var accountPath = "/storage/emulated/0/Android/media/com.whatsapp/WhatsApp/accounts"
-    val lastFolder = targetPath + "/" + getLastModifiedName(targetPath)
+    var lastFolder = targetPath + "/" + getLastModifiedName(targetPath)
     var acc1path = ""
     var acc2path = ""
 
@@ -93,7 +93,7 @@ class VoiceViewModel : ViewModel() {
     }
 
     /** Load WhatsApp voice notes from storage */
-    private fun loadAudioFiles() {
+    public fun loadAudioFiles() {
         if (!has2Whatsapp) {
             val dir0 = File(lastFolder)
             if (!dir0.exists() || !dir0.isDirectory) return
@@ -209,8 +209,15 @@ class VoiceViewModel : ViewModel() {
     }
 
     /** Play an audio file */
-    fun play(filePath: String) {
+    fun play(filePath: String,select: Int = 0) {
         currentFile = filePath
+
+        if (select == 1){
+          lastFolder = acc1path
+        }
+        else if (select==2){
+           lastFolder = acc2path
+        }
         val filePath = "$lastFolder/$filePath"
         stop() // stop previous playback
 

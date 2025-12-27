@@ -209,7 +209,7 @@ fun MainView(vm: VoiceViewModel, tabItems: List<TabItem>) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun VoiceMsg(vm: VoiceViewModel, v: VoiceNotes) {
+fun VoiceMsg(vm: VoiceViewModel, v: VoiceNotes,select :Int = 0) {
     var isPlaying by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     var progressAudio = vm.progressRatio
@@ -252,7 +252,7 @@ fun VoiceMsg(vm: VoiceViewModel, v: VoiceNotes) {
             } else {
                 IconButton(onClick = {
                     isPlaying = !isPlaying
-                    vm.play(v.name)
+                    vm.play(v.name,select)
                 }) {
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
@@ -372,7 +372,7 @@ fun Messages(vm: VoiceViewModel) {
 
 @Composable
 fun Messages4Pager(vm: VoiceViewModel, key: Int) {
-
+    vm.loadAudioFiles()
     var grouped = remember(vm.audioList) {
         vm.account1List.groupBy { it.date }
     }
@@ -394,7 +394,7 @@ fun Messages4Pager(vm: VoiceViewModel, key: Int) {
             // Messages for that date
             items(items = itemsForDate, key = { it.name }   // only if "name" is unique
             ) { v ->
-                VoiceMsg(vm = vm, v)
+                VoiceMsg(vm = vm, v,key+1)
             }
         }
     }
