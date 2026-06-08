@@ -118,6 +118,7 @@ class VoiceViewModel : ViewModel() {
     }
 
     fun loadAudioFiles() {
+        lastFolder = "$targetPath/${getLastModifiedName(targetPath)}"
         if (!has2Whatsapp) {
             val notes = fetchVoiceNotesFromDir(lastFolder)
             audioList.clear()
@@ -131,6 +132,11 @@ class VoiceViewModel : ViewModel() {
             account2List.clear()
             account2List.addAll(notes2)
         }
+    }
+
+    fun refreshAudioFiles() {
+        checkWhatsapp()
+        loadAudioFiles()
     }
 
     fun play(fileName: String, select: Int = 0) {
