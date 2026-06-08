@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import app.bytejoseph.tunnelvoice.data.AuthManager
 import app.bytejoseph.tunnelvoice.models.TabItem
-import app.bytejoseph.tunnelvoice.ui.components.Greeting
 import app.bytejoseph.tunnelvoice.ui.components.MainScreen
 import app.bytejoseph.tunnelvoice.ui.theme.TunnelVoiceTheme
 
@@ -55,14 +54,15 @@ class MainActivity : ComponentActivity() {
                     Column(
                         modifier = Modifier
                             .padding(innerPadding)
-                            .fillMaxWidth()
+                            .fillMaxSize()
                             .background(MaterialTheme.colorScheme.background),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Greeting(
-                            name = "Android"
+                        MainScreen(
+                            vm = voiceViewModel,
+                            tabItems = tabItems,
+                            modifier = Modifier.weight(1f)
                         )
-                        MainScreen(vm = voiceViewModel, tabItems = tabItems)
                     }
                 }
             }
