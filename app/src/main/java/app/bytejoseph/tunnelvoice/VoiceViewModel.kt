@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.bytejoseph.tunnelvoice.models.VoiceNotes
 import app.bytejoseph.tunnelvoice.util.Constants
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -52,11 +53,19 @@ class VoiceViewModel : ViewModel() {
     private var acc2path = ""
 
     init {
-        checkWhatsapp()
-        loadAudioFiles()
+        viewModelScope.launch(Dispatchers.IO) {
+            checkWhatsappInternal()
+            loadAudioFilesInternal()
+        }
     }
 
     fun checkWhatsapp() {
+        viewModelScope.launch(Dispatchers.IO) {
+            checkWhatsappInternal()
+        }
+    }
+
+    private fun checkWhatsappInternal() {
         val dir = File(accountPath)
 
         if (!dir.exists() || !dir.isDirectory) {
@@ -66,9 +75,10 @@ class VoiceViewModel : ViewModel() {
         }
 
         val children = dir.listFiles()
-        has2Whatsapp = (children?.size == 2)
+        val isTwo = (children?.size == 2)
+        has2Whatsapp = isTwo
 
-        if (has2Whatsapp) {
+        if (isTwo) {
             accounts = children!!.map { it.name }
             val base1 = "$accountPath/${accounts[0]}/Media/WhatsApp Voice Notes"
             acc1path = "$base1/${getLastModifiedName(base1)}"
@@ -118,18 +128,27 @@ class VoiceViewModel : ViewModel() {
     }
 
     fun loadAudioFiles() {
+        viewModelScope.launch(Dispatchers.IO) {
+            loadAudioFilesInternal()
+        }
+    }
+
+    private fun loadAudioFilesInternal() {
         if (!has2Whatsapp) {
             val notes = fetchVoiceNotesFromDir(lastFolder)
-            audioList.clear()
-            audioList.addAll(notes)
+            viewModelScope.launch(Dispatchers.Main) {
+                audioList.clear()
+                audioList.addAll(notes)
+            }
         } else {
             val notes1 = fetchVoiceNotesFromDir(acc1path)
-            account1List.clear()
-            account1List.addAll(notes1)
-
             val notes2 = fetchVoiceNotesFromDir(acc2path)
-            account2List.clear()
-            account2List.addAll(notes2)
+            viewModelScope.launch(Dispatchers.Main) {
+                account1List.clear()
+                account1List.addAll(notes1)
+                account2List.clear()
+                account2List.addAll(notes2)
+            }
         }
     }
 

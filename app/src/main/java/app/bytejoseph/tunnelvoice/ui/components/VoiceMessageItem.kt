@@ -42,7 +42,6 @@ import app.bytejoseph.tunnelvoice.models.VoiceNotes
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun VoiceMessageItem(vm: VoiceViewModel, v: VoiceNotes, select: Int = 0) {
-    val progressAudio = vm.progressRatio
     val isActuallyPlaying = vm.isPlaying && v.name == vm.currentFile
 
     Row(
@@ -99,7 +98,7 @@ fun VoiceMessageItem(vm: VoiceViewModel, v: VoiceNotes, select: Int = 0) {
         ) {
             if (isActuallyPlaying) {
                 LinearWavyProgressIndicator(
-                    progress = { progressAudio },
+                    progress = { vm.progressRatio },
                     modifier = Modifier
                         .align(Alignment.Center)
                         .fillMaxWidth(),
@@ -108,7 +107,7 @@ fun VoiceMessageItem(vm: VoiceViewModel, v: VoiceNotes, select: Int = 0) {
                 )
             } else {
                 LinearProgressIndicator(
-                    progress = { if (v.name == vm.currentFile) progressAudio else 0f },
+                    progress = { if (v.name == vm.currentFile) vm.progressRatio else 0f },
                     modifier = Modifier
                         .align(Alignment.Center)
                         .fillMaxWidth(),

@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,8 +31,8 @@ fun MessageList(vm: VoiceViewModel) {
         return
     }
 
-    val grouped = remember(vm.audioList) {
-        vm.audioList.groupBy { it.date }
+    val grouped by remember {
+        derivedStateOf { vm.audioList.groupBy { it.date } }
     }
 
     LazyColumn(
@@ -70,8 +72,8 @@ fun MessageListForPager(vm: VoiceViewModel, key: Int) {
         return
     }
 
-    val grouped = remember(vm.account1List, vm.account2List, key) {
-        currentList.groupBy { it.date }
+    val grouped by remember(key) {
+        derivedStateOf { currentList.groupBy { it.date } }
     }
 
     LazyColumn(
