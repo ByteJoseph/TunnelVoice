@@ -25,7 +25,7 @@ import app.bytejoseph.tunnelvoice.data.AuthManager
 import app.bytejoseph.tunnelvoice.models.TabItem
 import app.bytejoseph.tunnelvoice.ui.components.MainScreen
 import app.bytejoseph.tunnelvoice.ui.theme.TunnelVoiceTheme
-
+import androidx.activity.OnBackPressedCallback
 class MainActivity : ComponentActivity() {
     private val voiceViewModel: VoiceViewModel by viewModels()
     private val authManager = AuthManager()
@@ -45,6 +45,11 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishAffinity() // closes all activities in the task
+            }
+        })
         enableEdgeToEdge()
         setContent {
             TunnelVoiceTheme {
