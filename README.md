@@ -1,17 +1,24 @@
 # TunnelVoice
 
-TunnelVoice is an Android application designed to help users manage and play WhatsApp voice notes efficiently while maintaining privacy. It allows users to listen to voice messages without triggering read receipts (blue ticks) in WhatsApp. It specifically addresses the needs of users with multiple WhatsApp accounts, providing a unified or togglable interface to access voice messages from different account directories.
+**TunnelVoice** is an Android app for listening to WhatsApp voice notes without sending blue ticks
 
 ## Features
 
-- **Privacy Focused**: Listen to WhatsApp voice notes without sending read receipts (blue ticks), as the app accesses the files directly from the device storage.
-- **Dual WhatsApp Support**: Automatically detects and handles voice notes from two different WhatsApp accounts (using the standard Android media path).
-- **Voice Note Discovery**: Scans WhatsApp media directories to find and list `.opus` and other voice message files.
-- **Modern UI**: Built with **Jetpack Compose** and **Material 3**, featuring a clean, responsive interface.
-- **Date Grouping**: Organizes voice notes by "Today", "Yesterday", and specific dates for easy navigation.
-- **Audio Playback**: Integrated playback controls with real-time progress tracking using Android's `MediaPlayer`.
-- **Firebase Integration**: Includes anonymous authentication via Firebase Auth.
-- **Dynamic Theming**: Support for Material 3 dynamic color and theme.
+- Listen to voice notes without sending blue ticks
+
+- Support for two WhatsApp accounts
+
+- Automatically finds WhatsApp voice notes
+
+- Simple, modern interface
+
+- Voice notes grouped by date
+
+- Built-in audio player
+
+- Anonymous Firebase sign-in
+
+- Material 3 dynamic theming
 
 ## Tech Stack
 
@@ -33,7 +40,7 @@ TunnelVoice is an Android application designed to help users manage and play Wha
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/ByteJoseph/tunnelvoice.git
+   git clone https://github.com/ByteJoseph/TunnelVoice.git
    ```
 2. Open the project in Android Studio.
 3. Sync the project with Gradle files.
@@ -70,4 +77,4 @@ To run unit tests:
 
 ## License
 
-[MIT License](LICENSE) (Replace with your actual license if applicable)
+[MIT License](LICENSE)
