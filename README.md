@@ -33,7 +33,7 @@ TunnelVoice is an Android application designed to help users manage and play Wha
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/tunnelvoice.git
+   git clone https://github.com/ByteJoseph/tunnelvoice.git
    ```
 2. Open the project in Android Studio.
 3. Sync the project with Gradle files.
