@@ -44,8 +44,6 @@
 
 - Built-in audio player
 
-- Anonymous Firebase sign-in
-
 - Material 3 dynamic theming
 
 ## Tech Stack
