@@ -90,7 +90,7 @@ The app requires the following permissions to function:
     - `models/`: Data models like `VoiceNotes` and `TabItem`.
     - `ui/`: Compose components, themes, and screens.
     - `util/`: Constants and utility classes.
-    - `VoiceViewModel.kt`: Main business logic and state management for audio files and playback.
+    - `VoiceViewModel.kt`: Main logic and state management for audio files and playback.
     - `MainActivity.kt`: Entry point of the application.
 
 ## Build and Test
