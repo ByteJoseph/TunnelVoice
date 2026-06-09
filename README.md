@@ -5,6 +5,12 @@
   <p>
     <strong>TunnelVoice</strong> is an Android app for secretly listening to WhatsApp voice notes without sending blue ticks.
   </p>
+  <a href="https://github.com/ByteJoseph/TunnelVoice/releases/latest">
+  <img
+    src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png"
+    alt="Get it on GitHub"
+    height="80">
+</a>
 </div>
 <hr>
 <table align="center">
