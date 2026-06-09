@@ -1,6 +1,29 @@
 # TunnelVoice
 
 **TunnelVoice** is an Android app for listening to WhatsApp voice notes without sending blue ticks
+<hr>
+<table align="center">
+  <tr>
+    <td align="center">
+      <img
+        src="https://github.com/ByteJoseph/ByteJoseph/blob/main/.github/Screenshot_2026-06-09-10-13-00-52_996a1916517e51e2c96a6a3d5f414af2.jpg?raw=true"
+        width="250"
+        alt="Screenshot 1"
+      />
+    </td>
+    <td align="center">
+      <img
+        src="https://github.com/ByteJoseph/ByteJoseph/blob/main/.github/Screenshot_2026-06-09-10-14-23-80_996a1916517e51e2c96a6a3d5f414af2.jpg?raw=true"
+        width="250"
+        alt="Screenshot 2"
+      />
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><b>Dark Mode</b></td>
+    <td align="center"><b>Light Mode</b></td>
+  </tr>
+</table>
 
 ## Features
 
