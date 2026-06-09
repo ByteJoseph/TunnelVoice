@@ -1,8 +1,34 @@
-# TunnelVoice
+<div align="center">
+  <img src="https://github.com/ByteJoseph/ByteJoseph/blob/main/.github/logo-modified.png?raw=true" width="70" height="70" />
+  <h1>TunnelVoice</h1>
 
-**TunnelVoice** is an Android app for listening to WhatsApp voice notes without sending blue ticks.
-
-TunnelVoice is designed to be lightweight, private-first, and fast, helping users review voice notes with a smooth modern experience while preserving message-read privacy behavior.
+  <p>
+    <strong>TunnelVoice</strong> is an Android app for secretly listening to WhatsApp voice notes without sending blue ticks.
+  </p>
+</div>
+<hr>
+<table align="center">
+  <tr>
+    <td align="center">
+      <img
+        src="https://github.com/ByteJoseph/ByteJoseph/blob/main/.github/Screenshot_2026-06-09-10-13-00-52_996a1916517e51e2c96a6a3d5f414af2.jpg?raw=true"
+        width="250"
+        alt="Screenshot 1"
+      />
+    </td>
+    <td align="center">
+      <img
+        src="https://github.com/ByteJoseph/ByteJoseph/blob/main/.github/Screenshot_2026-06-09-10-14-23-80_996a1916517e51e2c96a6a3d5f414af2.jpg?raw=true"
+        width="250"
+        alt="Screenshot 2"
+      />
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><b>Dark Mode</b></td>
+    <td align="center"><b>Light Mode</b></td>
+  </tr>
+</table>
 
 ## Features
 
@@ -28,7 +54,6 @@ TunnelVoice is designed to be lightweight, private-first, and fast, helping user
 - **Language**: Kotlin
 - **UI Framework**: Jetpack Compose
 - **Architecture**: MVVM (Model-View-ViewModel)
-- **Authentication**: Firebase Auth
 - **Build System**: Gradle (Kotlin DSL)
 - **Audio Handling**: Android `MediaPlayer`
 
@@ -48,7 +73,7 @@ TunnelVoice is designed to be lightweight, private-first, and fast, helping user
    ```
 2. Open the project in Android Studio.
 3. Sync the project with Gradle files.
-4. Run the app on your device/emulator.
+4. Run the app on your device.
 
 ### First Launch Experience
 
@@ -60,7 +85,6 @@ After permissions are granted, return to the app and tap the Refresh action to i
 The app requires the following permissions to function:
 - `READ_EXTERNAL_STORAGE` / `WRITE_EXTERNAL_STORAGE` (for older Android versions)
 - `MANAGE_EXTERNAL_STORAGE` (for Android 11+)
-- `INTERNET` (for Firebase integration)
 
 ## Project Structure
 
