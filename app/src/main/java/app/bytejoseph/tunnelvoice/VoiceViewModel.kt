@@ -132,11 +132,35 @@ class VoiceViewModel : ViewModel() {
         }
     }
 
-    fun refreshAudioFiles() {
-        checkWhatsapp()
-        lastFolder = "$targetPath/${getLastModifiedName(targetPath)}"
-        loadAudioFiles()
+fun refreshAudioFiles() {
+    checkWhatsapp()
+    val newLastFolder = "$targetPath/${getLastModifiedName(targetPath)}"
+    lastFolder = newLastFolder
+
+    // Capture paths/state to avoid reading snapshot state from a background thread.
+    val useHas2Whatsapp = has2Whatsapp
+    val useAcc1Path = acc1path
+    val useAcc2Path = acc2path
+
+    viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+        val notes = if (!useHas2Whatsapp) fetchVoiceNotesFromDir(newLastFolder) else emptyList()
+        val notes1 = if (useHas2Whatsapp) fetchVoiceNotesFromDir(useAcc1Path) else emptyList()
+        val notes2 = if (useHas2Whatsapp) fetchVoiceNotesFromDir(useAcc2Path) else emptyList()
+
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+            if (!useHas2Whatsapp) {
+                audioList.clear()
+                audioList.addAll(notes)
+            } else {
+                account1List.clear()
+                account1List.addAll(notes1)
+
+                account2List.clear()
+                account2List.addAll(notes2)
+            }
+        }
     }
+}
 
     fun play(fileName: String, select: Int = 0) {
         currentFile = fileName
