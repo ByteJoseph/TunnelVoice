@@ -53,7 +53,7 @@ TunnelVoice is designed to be lightweight, private-first, and fast, helping user
 ### First Launch Experience
 
 On first launch, TunnelVoice requests the storage permissions needed to read WhatsApp voice note directories.  
-After permissions are granted, the app indexes available voice notes and presents them in a grouped-by-date list.
+After permissions are granted, return to the app and tap the Refresh action to index and display available voice notes.
 
 ### Permissions
 
