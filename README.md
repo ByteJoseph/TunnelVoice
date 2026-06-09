@@ -94,10 +94,6 @@ To build the project:
 ./gradlew assembleDebug
 ```
 
-To run unit tests:
-```bash
-./gradlew testDebugUnitTest
-```
 
 ## License
 
